@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FreeRdpClient.Views.SessionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FreeRdpClient.Controls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Grid x:Name="Toolbar" Padding="12,4" ColumnSpacing="8"
+              Background="{ThemeResource LayerFillColorDefaultBrush}"
+              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE7F4;" FontSize="14" />
+                <TextBlock x:Name="TitleText" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <TextBlock x:Name="StatusText" Opacity="0.6" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                <Button x:Name="InfoButton" ToolTipService.ToolTip="現在の接続設定と状態を表示"
+                        Background="Transparent" BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE946;" FontSize="14" />
+                        <TextBlock Text="接続情報" />
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Placement="BottomEdgeAlignedRight" Opening="OnInfoFlyoutOpening" Closed="OnInfoFlyoutClosed" />
+                    </Button.Flyout>
+                </Button>
+                <Button x:Name="CadButton" Click="OnCtrlAltDelClick" ToolTipService.ToolTip="Ctrl+Alt+Del を送信"
+                        Background="Transparent" BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE72E;" FontSize="14" />
+                        <TextBlock Text="Ctrl+Alt+Del" />
+                    </StackPanel>
+                </Button>
+                <Button Click="OnFullScreenClick" ToolTipService.ToolTip="全画面表示 (Ctrl+Alt+Enter)"
+                        Background="Transparent" BorderThickness="0">
+                    <FontIcon Glyph="&#xE740;" FontSize="14" />
+                </Button>
+                <Button Click="OnDisconnectClick" ToolTipService.ToolTip="切断"
+                        Background="Transparent" BorderThickness="0">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE711;" FontSize="14" />
+                        <TextBlock Text="切断" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Remote desktop -->
+        <controls:RdpDisplay x:Name="Display" Grid.Row="1" />
+
+        <!-- Connecting / disconnected overlay -->
+        <Grid x:Name="Overlay" Grid.Row="1" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16" MaxWidth="600" Padding="24">
+                <ProgressRing x:Name="Progress" IsActive="True" Width="48" Height="48" />
+                <FontIcon x:Name="ErrorIcon" Glyph="&#xE7BA;" FontSize="40" Visibility="Collapsed" />
+                <TextBlock x:Name="OverlayTitle" Style="{StaticResource SubtitleTextBlockStyle}"
+                           HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
+                <TextBlock x:Name="OverlayMessage" TextWrapping="Wrap" HorizontalAlignment="Center"
+                           TextAlignment="Center" Opacity="0.8" IsTextSelectionEnabled="True" />
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <Button x:Name="ReconnectButton" Style="{StaticResource AccentButtonStyle}" Content="再接続"
+                            Click="OnReconnectClick" Visibility="Collapsed" />
+                    <Button x:Name="CancelButton" Content="キャンセル" Click="OnDisconnectClick" />
+                    <Button x:Name="BackButton" Content="接続画面に戻る" Click="OnBackClick" Visibility="Collapsed" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- Full screen bar (shown when the pointer touches the top edge) -->
+        <Border x:Name="FullScreenBar" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center"
+                Visibility="Collapsed" Padding="12,4" CornerRadius="0,0,8,8"
+                Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1,0,1,1"
+                PointerExited="OnFullScreenBarPointerExited">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock x:Name="BarTitle" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,8,0" />
+                <Button ToolTipService.ToolTip="接続情報">
+                    <FontIcon Glyph="&#xE946;" FontSize="14" />
+                    <Button.Flyout>
+                        <Flyout Placement="Bottom" Opening="OnInfoFlyoutOpening" Closed="OnInfoFlyoutClosed" />
+                    </Button.Flyout>
+                </Button>
+                <Button Click="OnCtrlAltDelClick" Content="Ctrl+Alt+Del" />
+                <Button Click="OnFullScreenClick" ToolTipService.ToolTip="全画面表示を終了">
+                    <FontIcon Glyph="&#xE73F;" FontSize="14" />
+                </Button>
+                <Button Click="OnDisconnectClick" ToolTipService.ToolTip="切断">
+                    <FontIcon Glyph="&#xE711;" FontSize="14" />
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

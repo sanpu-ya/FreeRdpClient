@@ -1,0 +1,124 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ZLIB::ZLIB::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ZLIB__ZLIB-Debug-3ee96fe50bdafac679c7.json",
+					"name" : "ZLIB::ZLIB",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "freerdp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-freerdp-Debug-060f8589db3471e3bb3c.json",
+					"name" : "freerdp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "freerdp-client::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-freerdp-client-Debug-99a60fb8ec8a213b1aa1.json",
+					"name" : "freerdp-client",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "winpr::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-winpr-Debug-af7b28ffa48ddf2ee671.json",
+					"name" : "winpr",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "winpr-hash::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-winpr-hash-Debug-5447f7b7a95ce48bdc5c.json",
+					"name" : "winpr-hash",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "winpr-makecert::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-winpr-makecert-Debug-b2107ecd9b595a564136.json",
+					"name" : "winpr-makecert",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-e36c43c1ed7c07af3606.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "FreeRdpBridge",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "FreeRdpBridge::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-FreeRdpBridge-Debug-f8b08c70ef84c9a1ae1a.json",
+					"name" : "FreeRdpBridge",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/nao/source/repos/FreeRDP-dotnet/native/FreeRdpBridge/out/build/x64-Debug",
+		"source" : "C:/Users/nao/source/repos/FreeRDP-dotnet/native/FreeRdpBridge"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 10
+	}
+}

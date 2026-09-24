@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="FreeRdpClient.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="FreeRDP Client">
+
+    <Grid x:Name="Root">
+        <TabView x:Name="Tabs"
+                 IsAddTabButtonVisible="True"
+                 TabWidthMode="Equal"
+                 CloseButtonOverlayMode="Auto"
+                 AddTabButtonClick="OnAddTabClick"
+                 TabCloseRequested="OnTabCloseRequested"
+                 SelectionChanged="OnTabSelectionChanged">
+            <TabView.TabStripHeader>
+                <Image Source="ms-appx:///Assets/AppLogo.png" Width="16" Height="16" Margin="12,0,8,0"
+                       VerticalAlignment="Center" />
+            </TabView.TabStripHeader>
+            <TabView.TabStripFooter>
+                <Grid x:Name="DragRegion" Background="Transparent" MinWidth="160" />
+            </TabView.TabStripFooter>
+        </TabView>
+
+        <!-- Hosts the session while in full screen mode -->
+        <Border x:Name="FullScreenHost" Visibility="Collapsed" Background="Black" />
+    </Grid>
+</Window>

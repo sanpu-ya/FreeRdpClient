@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/nao/source/repos/FreeRDP-dotnet/native/FreeRdpBridge/out/build/x64-Debug/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

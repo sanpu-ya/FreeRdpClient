@@ -1,0 +1,142 @@
+{
+	"abstract" : true,
+	"artifacts" : 
+	[
+		{
+			"path" : "C:/Users/nao/source/repos/FreeRDP/build/install/bin/winpr3.dll"
+		},
+		{
+			"path" : "C:/Users/nao/source/repos/FreeRDP/build/install/lib/winpr3.lib"
+		}
+	],
+	"backtrace" : 7,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"_add_library",
+			"add_library",
+			"include",
+			"_find_package",
+			"find_package",
+			"set_target_properties"
+		],
+		"files" : 
+		[
+			"C:/Users/nao/source/repos/vcpkg/scripts/buildsystems/vcpkg.cmake",
+			"C:/Users/nao/source/repos/FreeRDP/build/install/lib/cmake/WinPR3/WinPRTargets.cmake",
+			"C:/Users/nao/source/repos/FreeRDP/build/install/lib/cmake/WinPR3/WinPRConfig.cmake",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 3
+			},
+			{
+				"command" : 4,
+				"file" : 3,
+				"line" : 12,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 908,
+				"parent" : 1
+			},
+			{
+				"file" : 2,
+				"parent" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 50,
+				"parent" : 3
+			},
+			{
+				"file" : 1,
+				"parent" : 4
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 59,
+				"parent" : 5
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 653,
+				"parent" : 6
+			},
+			{
+				"command" : 5,
+				"file" : 1,
+				"line" : 61,
+				"parent" : 5
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 10
+	},
+	"id" : "winpr::@6890427a1f51a3e7e1df",
+	"imported" : true,
+	"interfaceLinkLibraries" : 
+	[
+		{
+			"backtrace" : 8,
+			"fragment" : "crypt32"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "shlwapi"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "pathcch"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "ncrypt"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "dbghelp"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "ws2_32"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "ws2_32"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "ws2_32"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "rpcrt4"
+		},
+		{
+			"backtrace" : 8,
+			"fragment" : "ntdsapi"
+		}
+	],
+	"local" : true,
+	"name" : "winpr",
+	"nameOnDisk" : "winpr3.dll",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sources" : [],
+	"type" : "SHARED_LIBRARY"
+}

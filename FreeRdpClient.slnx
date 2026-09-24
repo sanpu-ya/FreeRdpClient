@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/FreeRdp.Interop/FreeRdp.Interop.csproj" />
+    <Project Path="src/FreeRdpClient/FreeRdpClient.csproj" />
+  </Folder>
+</Solution>
