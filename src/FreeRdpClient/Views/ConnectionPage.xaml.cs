@@ -13,13 +13,13 @@ public sealed partial class ConnectionPage : UserControl
     private static readonly (string Label, string Value)[] Resolutions =
     [
         ("ウィンドウに合わせる (動的に変更)", ConnectionProfile.DynamicResolution),
+        ("1920 × 1200", "1920x1200"),
         ("1920 × 1080", "1920x1080"),
-        ("1680 × 1050", "1680x1050"),
+        ("1600 × 1200", "1600x1200"),
         ("1600 × 900", "1600x900"),
         ("1440 × 900", "1440x900"),
         ("1366 × 768", "1366x768"),
         ("1280 × 1024", "1280x1024"),
-        ("1280 × 800", "1280x800"),
         ("1280 × 720", "1280x720"),
         ("1024 × 768", "1024x768"),
     ];
@@ -83,7 +83,17 @@ public sealed partial class ConnectionPage : UserControl
         SavePasswordBox.IsChecked = profile.SavePassword;
         PasswordBox.Password = profile.SavePassword ? CredentialStore.Read(profile) ?? "" : "";
 
+        // Drop the extra entry of a previously loaded profile
+        while (ResolutionBox.Items.Count > Resolutions.Length)
+            ResolutionBox.Items.RemoveAt(ResolutionBox.Items.Count - 1);
+
         var index = Array.FindIndex(Resolutions, r => r.Value == profile.Resolution);
+        if (index < 0 && profile.TryGetFixedResolution(out var w, out var h))
+        {
+            // A size that is no longer in the list (saved by an older version): keep it selectable
+            ResolutionBox.Items.Add(new ComboBoxItem { Content = $"{w} × {h} (保存済み)", Tag = profile.Resolution });
+            index = ResolutionBox.Items.Count - 1;
+        }
         ResolutionBox.SelectedIndex = index < 0 ? 0 : index;
         ScalingSwitch.IsOn = profile.MatchLocalScaling;
         ClipboardBox.IsChecked = profile.RedirectClipboard;
