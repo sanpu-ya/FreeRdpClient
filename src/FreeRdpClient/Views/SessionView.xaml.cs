@@ -445,6 +445,15 @@ public sealed partial class SessionView : UserControl
         Display.FocusSession();
     }
 
+    /// <summary>GDI / USER objects of this process. Both are limited to 10000 per process by default.</summary>
+    private static string ResourceUsage()
+    {
+        var process = FreeRdpClient.Interop.Win32.GetCurrentProcess();
+        var gdi = FreeRdpClient.Interop.Win32.GetGuiResources(process, 0);
+        var user = FreeRdpClient.Interop.Win32.GetGuiResources(process, 1);
+        return $"{gdi} / {user} (上限 各 10000)";
+    }
+
     private static string OnOff(bool? value, string on = "有効", string off = "無効") =>
         value switch { true => on, false => off, null => "-" };
 
@@ -536,6 +545,7 @@ public sealed partial class SessionView : UserControl
                 ("証明書の検証", OnOff(s?.GetBool("FreeRDP_IgnoreCertificate") is { } ignore ? !ignore : null)),
                 ("自動再接続", OnOff(s?.GetBool("FreeRDP_AutoReconnectionEnabled"))),
                 ("追加オプション", string.IsNullOrWhiteSpace(p.ExtraArguments) ? "なし" : p.ExtraArguments),
+                ("GDI / USER オブジェクト", ResourceUsage()),
             ]),
         ];
     }

@@ -54,6 +54,13 @@ internal static unsafe partial class Win32
     [LibraryImport("user32.dll", SetLastError = true)]
     public static partial IntPtr CreateCursor(IntPtr hInst, int xHotSpot, int yHotSpot, int nWidth, int nHeight, byte* pvANDPlane, byte* pvXORPlane);
 
+    /// <summary>GR_GDIOBJECTS = 0, GR_USEROBJECTS = 1 (per process quota: 10000 each by default)</summary>
+    [LibraryImport("user32.dll")]
+    public static partial uint GetGuiResources(IntPtr process, uint flags);
+
+    [LibraryImport("kernel32.dll")]
+    public static partial IntPtr GetCurrentProcess();
+
     // Credential Manager ------------------------------------------------------
 
     public const uint CRED_TYPE_GENERIC = 1;

@@ -24,9 +24,12 @@ public enum RdpAuthReason
 
 public enum RdpPointerAction
 {
+    /// <summary>The cursor handle stays valid, and keeps meaning the same shape, for the whole session.</summary>
     Set = 0,
     Hide = 1,
     Default = 2,
+    /// <summary>The cursor handle may be destroyed (and its value reused) after it was replaced.</summary>
+    SetTransient = 3,
 }
 
 public enum CertificateDecision : uint

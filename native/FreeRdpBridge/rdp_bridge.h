@@ -38,9 +38,10 @@ extern "C"
 
 	enum rdpb_pointer_action
 	{
-		RDPB_POINTER_SET = 0,     /* hcursor is valid */
+		RDPB_POINTER_SET = 0,     /* hcursor stays valid (and means the same shape) until rdpb_free */
 		RDPB_POINTER_HIDE = 1,    /* hide the local cursor */
-		RDPB_POINTER_DEFAULT = 2  /* use the default arrow */
+		RDPB_POINTER_DEFAULT = 2, /* use the default arrow */
+		RDPB_POINTER_SET_TRANSIENT = 3 /* hcursor may be destroyed after it was replaced */
 	};
 
 	typedef struct
@@ -71,8 +72,7 @@ extern "C"
 		                                         const char* issuer, const char* fingerprint,
 		                                         const char* old_fingerprint, uint32_t flags);
 
-		/* Remote pointer changes (see enum rdpb_pointer_action). hcursor stays valid for a
-		 * while after it was replaced, the bridge destroys it lazily. */
+		/* Remote pointer changes (see enum rdpb_pointer_action). */
 		void(__cdecl* on_pointer)(void* user, int32_t action, void* hcursor);
 
 		/* Text copied on the remote side (UTF-16LE, not terminated). */

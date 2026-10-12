@@ -45,6 +45,10 @@ public sealed partial class MainWindow : Window
 
     public IntPtr Hwnd { get; }
 
+#if DEBUG
+    internal Panel DebugRoot => Root;
+#endif
+
     private IEnumerable<SessionView> Sessions =>
         Tabs.TabItems.OfType<TabViewItem>().Select(SessionOf).OfType<SessionView>()
             .Concat(_fullScreenView != null ? [_fullScreenView] : []);

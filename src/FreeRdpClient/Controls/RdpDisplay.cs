@@ -195,6 +195,7 @@ public sealed unsafe partial class RdpDisplay : ContentControl, KeyboardHook.ITa
         _session = null;
         KeyboardHook.Release(this);
         ProtectedCursor = null;
+        ClearCursorCache(); // the handles belong to the detached session
     }
 
     public void FocusSession() => Focus(FocusState.Programmatic);
@@ -392,17 +393,50 @@ public sealed unsafe partial class RdpDisplay : ContentControl, KeyboardHook.ITa
         e.Handled = true;
     }
 
+    // InputCursor.CreateFromHCursor leaks two GDI objects per call (Windows App SDK 1.8) and the
+    // remote pointer changes thousands of times a day, which exhausted the GDI handle quota after
+    // about a week. So exactly one InputCursor is created per cursor handle; the bridge maps equal
+    // shapes to the same handle for the whole session (RdpPointerAction.Set).
+    private readonly Dictionary<IntPtr, InputCursor> _cursorCache = [];
+    private static InputCursor? _arrowCursor;
+
+    private static InputCursor ArrowCursor => _arrowCursor ??= InputSystemCursor.Create(InputSystemCursorShape.Arrow);
+
+    private void ClearCursorCache()
+    {
+        foreach (var cursor in _cursorCache.Values)
+            cursor.Dispose();
+        _cursorCache.Clear();
+    }
+
+    private InputCursor GetCursor(IntPtr handle, bool cacheable)
+    {
+        if (cacheable && _cursorCache.TryGetValue(handle, out var cached))
+            return cached;
+
+        var cursor = CursorInterop.FromHCursor(handle);
+        if (cursor == null)
+            return ArrowCursor;
+        if (cacheable)
+            _cursorCache[handle] = cursor;
+        return cursor;
+    }
+
     private void OnPointerChanged(RdpPointerAction action, IntPtr cursor)
     {
+        var session = _session;
         _dispatcher.TryEnqueue(() =>
         {
-            if (_session == null)
+            // Handles of an earlier session are meaningless for the current one
+            if (session == null || !ReferenceEquals(session, _session))
                 return;
+
             ProtectedCursor = action switch
             {
-                RdpPointerAction.Set => CursorInterop.FromHCursor(cursor) ?? InputSystemCursor.Create(InputSystemCursorShape.Arrow),
+                RdpPointerAction.Set => GetCursor(cursor, cacheable: true),
+                RdpPointerAction.SetTransient => GetCursor(cursor, cacheable: false),
                 RdpPointerAction.Hide => CursorInterop.Hidden,
-                _ => InputSystemCursor.Create(InputSystemCursorShape.Arrow),
+                _ => ArrowCursor,
             };
         });
     }

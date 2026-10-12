@@ -41,6 +41,8 @@
 #define TAG CLIENT_TAG("dotnet.bridge")
 
 #define DEAD_CURSOR_SLOTS 32
+/* Distinct pointer shapes kept per session (see bridge_pointer_new) */
+#define CURSOR_CACHE_SIZE 256
 #define CF_UNICODETEXT_ID 13
 
 typedef struct
@@ -53,7 +55,18 @@ typedef struct
 {
 	rdpPointer pointer;
 	HCURSOR cursor;
+	BOOL shared; /* cursor is owned by the session's cursor cache */
 } bridgePointer;
+
+typedef struct
+{
+	UINT64 hash;
+	UINT32 width;
+	UINT32 height;
+	UINT32 hotX;
+	UINT32 hotY;
+	HCURSOR cursor;
+} cursorCacheEntry;
 
 struct rdpb_session
 {
@@ -97,6 +110,8 @@ struct rdpb_session
 	HCURSOR current_cursor;
 	HCURSOR dead_cursors[DEAD_CURSOR_SLOTS];
 	size_t dead_count;
+	cursorCacheEntry cursor_cache[CURSOR_CACHE_SIZE];
+	size_t cursor_cache_count;
 };
 
 static rdpb_session* get_session(rdpContext* context)
@@ -160,13 +175,75 @@ static HCURSOR create_cursor(const BYTE* bgra, UINT32 width, UINT32 height, UINT
 	return cursor;
 }
 
+static UINT64 hash_pixels(const BYTE* data, size_t length, UINT32 hotX, UINT32 hotY)
+{
+	/* FNV-1a */
+	UINT64 hash = 14695981039346656037ull;
+	for (size_t i = 0; i < length; i++)
+	{
+		hash ^= data[i];
+		hash *= 1099511628211ull;
+	}
+	hash ^= ((UINT64)hotX << 32) | hotY;
+	hash *= 1099511628211ull;
+	return hash;
+}
+
+/* Returns the cached cursor for this shape, creating it if there is room. The UI creates one
+ * WinUI InputCursor per HCURSOR and InputCursor.CreateFromHCursor leaks GDI objects on every call
+ * (Windows App SDK 1.8), so the same shape must always map to the same, long-lived HCURSOR.
+ * Cached cursors are destroyed in rdpb_free. */
+static HCURSOR cursor_cache_get(rdpb_session* s, const BYTE* data, UINT32 w, UINT32 h, UINT32 hotX,
+                                UINT32 hotY, BOOL* shared)
+{
+	const UINT64 hash = hash_pixels(data, (size_t)w * h * 4, hotX, hotY);
+	HCURSOR cursor = nullptr;
+	*shared = FALSE;
+
+	EnterCriticalSection(&s->cursor_lock);
+	for (size_t i = 0; i < s->cursor_cache_count; i++)
+	{
+		const cursorCacheEntry* e = &s->cursor_cache[i];
+		if ((e->hash == hash) && (e->width == w) && (e->height == h) && (e->hotX == hotX) &&
+		    (e->hotY == hotY))
+		{
+			cursor = e->cursor;
+			*shared = TRUE;
+			break;
+		}
+	}
+
+	if (!cursor)
+	{
+		cursor = create_cursor(data, w, h, hotX, hotY);
+		if (cursor && (s->cursor_cache_count < CURSOR_CACHE_SIZE))
+		{
+			cursorCacheEntry* e = &s->cursor_cache[s->cursor_cache_count++];
+			e->hash = hash;
+			e->width = w;
+			e->height = h;
+			e->hotX = hotX;
+			e->hotY = hotY;
+			e->cursor = cursor;
+			*shared = TRUE;
+		}
+		else if (!cursor)
+			WLog_WARN(TAG, "Failed to create a %" PRIu32 "x%" PRIu32 " cursor (error %" PRIu32 ")",
+			          w, h, GetLastError());
+	}
+	LeaveCriticalSection(&s->cursor_lock);
+	return cursor;
+}
+
 static BOOL bridge_pointer_new(rdpContext* context, rdpPointer* pointer)
 {
+	rdpb_session* s = get_session(context);
 	bridgePointer* ptr = (bridgePointer*)pointer;
-	if (!context || !ptr)
+	if (!context || !ptr || !s)
 		return FALSE;
 
 	ptr->cursor = nullptr;
+	ptr->shared = FALSE;
 	rdpGdi* gdi = context->gdi;
 	const UINT32 w = pointer->width;
 	const UINT32 h = pointer->height;
@@ -182,7 +259,7 @@ static BOOL bridge_pointer_new(rdpContext* context, rdpPointer* pointer)
 	                                         pointer->andMaskData, pointer->lengthAndMask,
 	                                         pointer->xorBpp, &gdi->palette))
 	{
-		ptr->cursor = create_cursor(data, w, h, pointer->xPos, pointer->yPos);
+		ptr->cursor = cursor_cache_get(s, data, w, h, pointer->xPos, pointer->yPos, &ptr->shared);
 	}
 
 	winpr_aligned_free(data);
@@ -198,6 +275,8 @@ static void bridge_pointer_free(rdpContext* context, rdpPointer* pointer)
 
 	HCURSOR cursor = ptr->cursor;
 	ptr->cursor = nullptr;
+	if (ptr->shared)
+		return; /* owned by the cursor cache */
 
 	/* The UI thread may still be using the cursor, so destruction is deferred. */
 	EnterCriticalSection(&s->cursor_lock);
@@ -241,7 +320,7 @@ static BOOL bridge_pointer_set(rdpContext* context, rdpPointer* pointer)
 		return FALSE;
 
 	if (ptr->cursor)
-		notify_pointer(s, RDPB_POINTER_SET, ptr->cursor);
+		notify_pointer(s, ptr->shared ? RDPB_POINTER_SET : RDPB_POINTER_SET_TRANSIENT, ptr->cursor);
 	else
 		notify_pointer(s, RDPB_POINTER_HIDE, nullptr);
 	return TRUE;
@@ -1138,6 +1217,8 @@ void rdpb_free(rdpb_session* s)
 
 	for (size_t i = 0; i < s->dead_count; i++)
 		DestroyCursor(s->dead_cursors[i]);
+	for (size_t i = 0; i < s->cursor_cache_count; i++)
+		DestroyCursor(s->cursor_cache[i].cursor);
 
 	free(s->auth_user);
 	if (s->auth_password)
